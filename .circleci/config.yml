@@ -22,7 +22,9 @@ jobs:
     steps:
       - checkout
 
-      - run: docker run -v /django.nv:/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json
+      - run: |
+          ls -lah
+          docker run -v /django.nv:/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json
 
       - store_artifacts:
           path: oast-results.json
