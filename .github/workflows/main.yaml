@@ -1,7 +1,7 @@
 name: Django                                  # workflow name
 
 on:
-  push:
+  push:                                       
     branches:                                 # similar to "only" in GitLab
       - main
 
@@ -53,8 +53,7 @@ jobs:
 
       - run: npm install
 
-      - run: docker run --rm -v $(pwd):/src -w /src hysnsec/retire --outputformat json --outputpath retirejs-report.json --severity high
-        continue-on-error: true
+      - run: docker run --rm -v /django.nv:/src -w /src hysnsec/retire --outputformat json --outputpath retirejs-report.json --severity high
 
       - uses: actions/upload-artifact@v2
         with:
@@ -64,7 +63,7 @@ jobs:
 
   integration:
     runs-on: ubuntu-20.04
-    needs: oast-frontend
+    needs: test
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
