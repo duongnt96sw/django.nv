@@ -17,6 +17,17 @@ jobs:
           pip install -r requirements.txt
           python manage.py test taskManager
 
+  oast-frontend:
+    machine: true
+    steps:
+      - checkout
+
+      - run: docker run --rm -v /django.nv:/src -w /src hysnsec/retire --outputformat json --outputpath retirejs-output.json --severity high
+
+      - store_artifacts:
+          path: retirejs-output.json
+          destination: retirejs-artifact
+
   integration:
     docker:
       - image: python:3.6
@@ -39,6 +50,16 @@ workflows:
   django:
     jobs:
       - build
-      - test
-      - integration
-      - prod
+      - test:
+          requires:
+            - build
+      - oast-frontend:
+          requires:
+            - test
+      - integration:
+          requires:
+            - oast-frontend
+      - prod:
+          type: approval
+          requires:
+            - integration
