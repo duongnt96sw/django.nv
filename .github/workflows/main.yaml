@@ -23,8 +23,8 @@ jobs:
           pip install -r requirements.txt
           python manage.py check
 
-	sca-frontend:
-		runs-on: ubuntu-20.04
+  sca-frontend:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
 
@@ -57,7 +57,7 @@ jobs:
           path: oast-results.json
         if: always()                        # what is this for?
 	
-	sast:
+  sast:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -71,7 +71,7 @@ jobs:
           path: bandit-output.json
         if: always()                        # what is this for?
 	
-	secrets-scanning:
+  secrets-scanning:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -85,7 +85,7 @@ jobs:
           path: trufflehog-output.json
         if: always()                        # what is this for?
 
-	test:
+  test:
     runs-on: ubuntu-20.04
     needs: build
     steps:
@@ -103,7 +103,7 @@ jobs:
           pip install -r requirements.txt
           python manage.py test taskManager
 
-	integration:
+  integration:
     runs-on: ubuntu-20.04
     needs: test
     steps:
@@ -111,7 +111,7 @@ jobs:
       - run: exit 1
         continue-on-error: true
 
-	zap_baseline:
+  zap_baseline:
     runs-on: ubuntu-20.04
     needs: test
     steps:
@@ -126,23 +126,25 @@ jobs:
           path: zap-output.json
         if: always()        # what is this for?
        
-	ansible-hardening:
+  ansible-hardening:
     runs-on: willhallonline/ansible:2.9-ubuntu-18.04
     needs: test
     steps:
-      - run: |
+      - name: Setup Ansible
+        run: |
            mkdir -p ~/.ssh
-           echo "${{ secrets.DEPLOYMENT_SERVER_SSH_PRIVKEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+           echo "${{ secrets.DEPLOYMENT_SERVER_SSH_PRIVKEY }}" | tr -d "\r" > ~/.ssh/id_rsa
            chmod 600 ~/.ssh/id_rsa
            eval "$(ssh-agent -s)"
            ssh-add ~/.ssh/id_rsa
            ssh-keyscan -t rsa ${{ secrets.DEPLOYMENT_SERVER }} >> ~/.ssh/known_hosts
-      - run: |
-		       echo -e "[prod]\n${{ secrets.DEPLOYMENT_SERVER }}" >> inventory.ini
-		       ansible-galaxy install dev-sec.os-hardening
-		       ansible-playbook -i inventory.ini ansible-hardening.yml
+      - name: Run Ansible
+        run: |
+           echo -e "[prod]\n${{ secrets.DEPLOYMENT_SERVER }}" >> inventory.ini
+           ansible-galaxy install dev-sec.os-hardening
+           ansible-playbook -i inventory.ini ansible-hardening.yml
 
-	inspec:
+  inspec:
     runs-on: ubuntu-20.04
     needs: test
     steps:
@@ -154,8 +156,8 @@ jobs:
            ssh-add ~/.ssh/id_rsa
            ssh-keyscan -t rsa ${{ secrets.DEPLOYMENT_SERVER }} >> ~/.ssh/known_hosts
       - run: |
-		       docker run --rm -v ~/.ssh:/root/.ssh -v $(pwd):/share hysnsec/inspec exec https://github.com/dev-sec/linux-baseline.git -t ssh://root@${{ secrets.DEPLOYMENT_SERVER }} -i ~/.ssh/id_rsa --chef-license accept --reporter json:inspec-output.json
-				continue-on-error: true
+           docker run --rm -v ~/.ssh:/root/.ssh -v $(pwd):/share hysnsec/inspec exec https://github.com/dev-sec/linux-baseline.git -t ssh://root@${{ secrets.DEPLOYMENT_SERVER }} -i ~/.ssh/id_rsa --chef-license accept --reporter json:inspec-output.json
+        continue-on-error: true
 
       - uses: actions/upload-artifact@master
         with:
@@ -163,8 +165,8 @@ jobs:
           path: inspec-output.json
         if: always()        # what is this for?
 
-	sast-with-vm:
-		runs-on: ubuntu-20.04
+  sast-with-vm:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
 
@@ -188,6 +190,3 @@ jobs:
     needs: integration
     steps:
       - run: echo "This is a deploy step."
-  
-
-	
