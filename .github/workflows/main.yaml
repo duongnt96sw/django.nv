@@ -130,9 +130,11 @@ jobs:
         if: always()        # what is this for?
        
   ansible-hardening:
-    runs-on: willhallonline/ansible
+    runs-on: ubuntu-20.04
     needs: test
     steps:
+      - uses: actions/checkout@v2
+      
       - name: Setup Ansible
         run: |
            mkdir -p ~/.ssh
@@ -141,9 +143,14 @@ jobs:
            eval "$(ssh-agent -s)"
            ssh-add ~/.ssh/id_rsa
            ssh-keyscan -t rsa ${{ secrets.DEPLOYMENT_SERVER }} >> ~/.ssh/known_hosts
+      
       - name: Run Ansible
         run: |
            echo -e "[prod]\n${{ secrets.DEPLOYMENT_SERVER }}" >> inventory.ini
+           pip3 install --upgrade virtualenv
+           virtualenv env
+           source env/bin/activate
+           pip install ansible
            ansible-galaxy install dev-sec.os-hardening
            ansible-playbook -i inventory.ini ansible-hardening.yml
 
