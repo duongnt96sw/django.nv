@@ -56,7 +56,7 @@ jobs:
           name: Safety
           path: oast-results.json
         if: always()                        # what is this for?
-	
+
   sast:
     runs-on: ubuntu-20.04
     steps:
@@ -70,7 +70,7 @@ jobs:
           name: Bandit
           path: bandit-output.json
         if: always()                        # what is this for?
-	
+
   secrets-scanning:
     runs-on: ubuntu-20.04
     steps:
