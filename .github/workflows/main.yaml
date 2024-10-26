@@ -39,7 +39,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: RetireJS_$CI_COMMIT_TIMESTAMP
+          name: "RetireJS_$GITHUB_RUN_ID"
           path: retirejs-report.json
         if: always()
 
@@ -53,7 +53,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: Safety
+          name: "Safety_$GITHUB_RUN_ID"
           path: oast-results.json
         if: always()                        # what is this for?
 
@@ -67,7 +67,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: Bandit_$CI_COMMIT_TIMESTAMP
+          name: "Bandit_$GITHUB_RUN_ID"
           path: bandit-output.json
         if: always()                        # what is this for?
 
@@ -81,7 +81,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: TruffleHog
+          name: "TruffleHog_$GITHUB_RUN_ID"
           path: trufflehog-output.json
         if: always()                        # what is this for?
 
@@ -122,7 +122,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: ZAPScan_$CI_COMMIT_TIMESTAMP
+          name: "ZAPScan_$GITHUB_RUN_ID"
           path: zap-output.json
         if: always()        # what is this for?
        
@@ -175,7 +175,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: Bandit_$CI_COMMIT_TIMESTAMP
+          name: "Bandit_$GITHUB_RUN_ID"
           path: bandit-output.json
         if: always()   
         
